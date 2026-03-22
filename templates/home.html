@@ -6,7 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
   </head>
   <body>
-
+<form action="/search" name="search" method="post" >
+  <label for="search">Search</label>
+  <input type="text" name="search" id="search">
+  <input type="submit" value="search">
+</form><br>
     {% for book in books %}
     <div> <h3>The book: {{ book.title }} is written by
       {% for author in authors %}

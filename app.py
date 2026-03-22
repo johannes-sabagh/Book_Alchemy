@@ -1,6 +1,11 @@
+from operator import contains
+
 from flask import Flask, request, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 import os
+
+from sqlalchemy.sql.compiler import ilike_case_insensitive
+
 from data_models import db, Author, Book
 
 
@@ -20,7 +25,13 @@ def home():
     .all()
   return render_template('home.html', books=books, authors=authors)
 
-
+@app.route('/search', methods=['POST'])
+def search():
+  to_find = request.form.get('search')
+  books = db.session.query(Book) \
+    .filter(Book.title.contains(to_find)) \
+    .all()
+  return render_template('search.html', books=books)
 
 
 @app.route('/add_author', methods=['GET', 'POST'])
