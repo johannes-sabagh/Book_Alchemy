@@ -1,11 +1,5 @@
-from operator import contains
-
-from flask import Flask, request, render_template, session
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, render_template, session, redirect, url_for
 import os
-
-from sqlalchemy.sql.compiler import ilike_case_insensitive
-
 from data_models import db, Author, Book
 
 
@@ -16,21 +10,36 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data
 
 db.init_app(app)
 
+def fetch_books_and_authors():
+  books = db.session.query(Book, Author) \
+    .join(Author, Book.author_id == Author.id) \
+    .all()
+  return books
 
 @app.route('/')
 def home():
-  books = db.session.query(Book) \
+  books = fetch_books_and_authors()
+  return render_template('home.html', books=books)
+
+
+@app.route('/sort_by_title', methods=['post'])
+def sort():
+  books = db.session.query(Book, Author) \
+    .join(Author, Book.author_id == Author.id) \
+    .order_by(Book.title) \
     .all()
-  authors = db.session.query(Author)\
-    .all()
-  return render_template('home.html', books=books, authors=authors)
+  return render_template('home.html', books=books)
+
 
 @app.route('/search', methods=['POST'])
 def search():
   to_find = request.form.get('search')
   books = db.session.query(Book) \
     .filter(Book.title.contains(to_find)) \
+    .join(Author, Book.author_id == Author.id) \
     .all()
+  if not books:
+    return render_template("search.html", msg="no books found")
   return render_template('search.html', books=books)
 
 
@@ -74,6 +83,17 @@ def add_book():
   db.session.commit()
   msg = f"The book {add_title} has been added successfully"
   return render_template('add_book.html', authors=authors, msg=msg)
+
+
+
+@app.route('/book/<int:book_id>/delete', methods=['post'])
+def delete_book(book_id):
+  db.session.query(Book) \
+    .filter(Book.id==book_id) \
+    .delete()
+  db.session.commit()
+  return redirect(url_for('home'))
+
 
 
 

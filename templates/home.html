@@ -11,15 +11,16 @@
   <input type="text" name="search" id="search">
   <input type="submit" value="search">
 </form><br>
-    {% for book in books %}
-    <div> <h3>The book: {{ book.title }} is written by
-      {% for author in authors %}
-      {% if author.id == book.author_id %}
-      {{author.name}}</h3>
-      {% endif %}
-      {% endfor %}
-    </div>
+<form action="/sort_by_title" name="by_title" method="post">
+    <input value="sort by title" type="submit">
+</form>
+    {% for book, author in books %}
+    <p>{{ book.title }} by {{ author.name }}</p>
+    <form method="post" action="/book/{{book.id}}/delete">
+        <input value="Delete" type="submit">
+    </form><br>
     {% endfor %}
+  <br>
 
   </body>
 </html>

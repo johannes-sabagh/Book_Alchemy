@@ -5,6 +5,9 @@
     <title>Search results</title>
 </head>
 <body>
+{% if msg %}
+{{msg}}
+{% endif %}
 books
 {% for book in books %}
 {{book.title}}
