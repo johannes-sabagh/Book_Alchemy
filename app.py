@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for
 import os
 from data_models import db, Author, Book
 
@@ -19,7 +19,7 @@ def home():
   return render_template('home.html', books=books)
 
 
-@app.route('/sort_by_title', methods=['post'])
+@app.route('/sort_by_title', methods=['POST'])
 def sort_title():
   books = db.session.query(Book, Author) \
     .join(Author, Book.author_id == Author.id) \
@@ -29,7 +29,7 @@ def sort_title():
 
 
 
-@app.route('/sort_by_author', methods=['post'])
+@app.route('/sort_by_author', methods=['POST'])
 def sort_author():
   books = db.session.query(Book, Author) \
     .join(Author, Book.author_id == Author.id) \
@@ -41,10 +41,14 @@ def sort_author():
 @app.route('/search', methods=['POST'])
 def search():
   to_find = request.form.get('search')
+  if not to_find or not to_find.strip():
+      return render_template('search.html', msg="Please enter a search term.")
+
   books = db.session.query(Book, Author) \
     .join(Author, Book.author_id == Author.id) \
     .filter(Book.title.contains(to_find)) \
     .all()
+
   if not books:
     return render_template("search.html", msg="no books found")
   return render_template('search.html', books=books)
@@ -55,8 +59,11 @@ def add_author():
   if request.method == 'GET':
     return render_template('add_author.html')
   add_name = request.form.get('name', '')
-  add_birth_date = request.form.get('birthdate', '')
-  add_date_of_death = request.form.get('date_of_death', '')
+  if not add_name.strip():
+    return render_template('add_author.html', msg="Author name is required.")
+
+  add_birth_date = request.form.get('birthdate') or None
+  add_date_of_death = request.form.get('date_of_death') or None
 
   author = Author(
     name = add_name,
@@ -80,6 +87,11 @@ def add_book():
   add_publication_year = request.form.get('publication_year')
   add_author_id = request.form.get('authors')
   add_cover = request.form.get('cover')
+  if not add_isbn or not add_title or not add_author_id:
+      return render_template('add_book.html', authors=authors, msg="ISBN, title, and author are required.")
+  existing = db.session.query(Book).filter_by(isbn=add_isbn).first()
+  if existing:
+      return render_template('add_book.html', authors=authors, msg="A book with that ISBN already exists.")
 
   book = Book(
     isbn = add_isbn,
@@ -95,7 +107,7 @@ def add_book():
 
 
 
-@app.route('/book/<int:book_id>/delete', methods=['post'])
+@app.route('/book/<int:book_id>/delete', methods=['POST'])
 def delete_book(book_id):
   db.session.query(Book) \
     .filter(Book.id==book_id) \
@@ -113,7 +125,7 @@ def view_authors():
 
 
 
-@app.route('/authors/<int:author_id>/delete', methods=['post'])
+@app.route('/authors/<int:author_id>/delete', methods=['POST'])
 def delete_author(author_id):
   db.session.query(Author) \
     .filter(Author.id == author_id) \
