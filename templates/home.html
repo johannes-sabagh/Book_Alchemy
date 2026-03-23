@@ -23,7 +23,7 @@
 <a href="/add_book">Add book</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="/authors">View authors</a>
     {% for book, author in books %}
-  <p><b><em>{{ book.title }}</em></b><br> by <b>{{ author.name }}</b> published in <b>{{book.publication_year}}</b></p>
+  <p><b><em>{{ book.title }}</em></b><br> by <b>{{ author.name }}</b> published in <b>{{book.publication_year}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  ISBN: {{book.isbn}}</b></p>
   <img src="{{book.cover}}">
     <form method="post" action="/book/{{book.id}}/delete">
         <input value="Delete" type="submit">
