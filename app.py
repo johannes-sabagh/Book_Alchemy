@@ -1,3 +1,12 @@
+"""
+Book Alchemy - A Flask web application for managing a personal book library.
+
+Provides functionality to add, view, search, sort, and delete books and authors,
+backed by a SQLite database via SQLAlchemy.
+"""
+
+
+
 from flask import Flask, request, render_template, redirect, url_for
 import os
 from data_models import db, Author, Book
@@ -5,6 +14,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+# Build an absolute path to the SQLite database file inside the 'data' directory
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data/library.sqlite')}"
 
@@ -12,6 +22,17 @@ db.init_app(app)
 
 
 def parse_date(value):
+  """Parse a date string in YYYY-MM-DD format into a date object.
+
+      Args:
+          value (str): The date string to parse. May be empty or None.
+
+      Returns:
+          datetime.date: The parsed date if valid.
+          None: If value is empty or None.
+          str: The string 'invalid' if the format does not match YYYY-MM-DD.
+  """
+
   if not value:
     return None
   try:
@@ -21,6 +42,13 @@ def parse_date(value):
 
 
 def book_author_query():
+  """
+  Build a base query that joins Books with their Authors.
+
+      Returns:
+          sqlalchemy.orm.Query: A query yielding (Book, Author) tuples,
+          filtered to only books that have an associated author.
+  """
   return db.session.query(Book, Author).join(Author, Book.author_id == Author.id)
 
 
@@ -32,6 +60,8 @@ def home():
 
 @app.route('/sort_by_title', methods=['POST'])
 def sort_title():
+  """Render the home page with books sorted alphabetically by title."""
+
   books = book_author_query().order_by(Book.title).all()
   return render_template('home.html', books=books)
 
@@ -39,13 +69,23 @@ def sort_title():
 
 @app.route('/sort_by_author', methods=['POST'])
 def sort_author():
+  """Render the home page with books sorted alphabetically by author name."""
   books = book_author_query().order_by(Author.name).all()
   return render_template('home.html', books=books)
 
 
 @app.route('/search', methods=['POST'])
 def search():
+  """
+  Search for books whose title contains the submitted search term.
+
+      Expects a form field named 'search'. Returns a message if the input
+      is blank or no matching books are found.
+  """
+
   to_find = request.form.get('search')
+
+  # Reject empty or whitespace-only search terms
   if not to_find or not to_find.strip():
       return render_template('search.html', msg="Please enter a search term.")
 
@@ -58,12 +98,23 @@ def search():
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
+  """
+  Display and process the Add Author form.
+
+      GET:  Render the empty add_author form.
+      POST: Validate inputs, then insert a new Author into the database.
+            - Name is required.
+            - Birthdate is required; date of death is optional.
+            - Both dates must be in YYYY-MM-DD format if provided.
+  """
+
   if request.method == 'GET':
     return render_template('add_author.html')
   add_name = request.form.get('name', '')
   if not add_name.strip():
     return render_template('add_author.html', msg="Author name is required.")
 
+  # Parse and validate both date fields
   add_birth_date = parse_date(request.form.get('birthdate'))
   add_date_of_death = parse_date(request.form.get('date_of_death'))
   if 'invalid' in (add_birth_date, add_date_of_death):
@@ -87,6 +138,17 @@ def add_author():
 
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
+  """
+  Display and process the Add Book form.
+
+      GET:  Render the empty add_book form, pre-populated with all authors.
+      POST: Validate inputs, then insert a new Book into the database.
+            - ISBN, title, and author are required.
+            - Publication year must be an integer between 1000 and 2026.
+            - ISBN must be unique across all existing books.
+            - The selected author must exist in the database.
+  """
+
   authors = db.session.query(Author) \
     .all()
   if request.method == 'GET':
@@ -103,13 +165,16 @@ def add_book():
       return render_template('add_book.html', authors=authors, msg="Enter a valid publication year.")
   add_cover = request.form.get('cover')
   add_author_id = request.form.get('authors')
+
+  # Ensure all required fields are present
   if not add_isbn or not add_title or not add_author_id:
     return render_template('add_book.html', authors=authors, msg="ISBN, title, and author are required.")
 
+  # Guard against a stale author_id that no longer exists in the database
   if add_author_id and not db.session.get(Author, add_author_id):
     return render_template('add_book.html', authors=authors, msg="Selected author does not exist.")
 
-
+  # Enforce ISBN uniqueness
   existing = db.session.query(Book).filter_by(isbn=add_isbn).first()
   if existing:
       return render_template('add_book.html', authors=authors, msg="A book with that ISBN already exists.")
@@ -133,6 +198,15 @@ def add_book():
 
 @app.route('/book/<int:book_id>/delete', methods=['POST'])
 def delete_book(book_id):
+  """
+  Delete the book with the given ID and redirect to the home page.
+
+      Args:
+          book_id (int): Primary key of the book to delete.
+
+      If the book does not exist, redirects silently to home.
+  """
+
   try:
     book = db.session.get(Book, book_id)
     if not book:
@@ -148,6 +222,7 @@ def delete_book(book_id):
 
 @app.route('/authors')
 def view_authors():
+  """Render the authors page listing all authors in the database."""
   authors = db.session.query(Author) \
     .all()
   return render_template('authors.html', authors=authors)
@@ -156,10 +231,23 @@ def view_authors():
 
 @app.route('/authors/<int:author_id>/delete', methods=['POST'])
 def delete_author(author_id):
+  """
+  Delete the author with the given ID.
+
+      Args:
+          author_id (int): Primary key of the author to delete.
+
+      Authors who still have books in the library cannot be deleted;
+      a message is shown instead. If the author does not exist,
+      redirects silently to the authors page.
+  """
+
   try:
     author = db.session.get(Author, author_id)
     if not author:
       return redirect(url_for('view_authors'))
+
+    # Prevent deletion if the author still has associated books
     has_books = db.session.query(Book).filter_by(author_id=author_id).first()
     if has_books:
       authors = db.session.query(Author).all()

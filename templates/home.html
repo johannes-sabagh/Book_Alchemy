@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-      <link rel="stylesheet" href="static/styles.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
   <h1>Book library Homepage</h1><br>
@@ -32,6 +32,8 @@
   <br>
     {% endfor %}
   <br>
-
+{% if msg %}
+<h1>{{msg}}</h1>
+{% endif %}
   </body>
 </html>
