@@ -5,13 +5,18 @@
     <title>Search results</title>
     <link rel="stylesheet" href="static/styles.css">
 </head>
+
 <body>
+
+<h1>Book Search results</h1><br>
+
 {% if msg %}
 {{msg}}
 {% endif %}
 <h2>{{books | length}} books found:</h2><br>
 {% for book, author in books %}
-<p>Book title: <b>{{book.title}}</b><br> written by: <b>{{author.name}}</b></p><br>
-{% endfor %}
+<p>Book title: <b>{{book.title}}</b><br> written by: <b>{{author.name}}</b></p><img src="{{book.cover}}"><br>
+{% endfor %}<br>
+<a href="/">Show all books</a><br>
 </body>
 </html>

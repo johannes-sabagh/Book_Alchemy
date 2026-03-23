@@ -17,5 +17,6 @@ class Book(db.Model):
     isbn = Column(String)
     title = Column(String)
     publication_year = Column(String)
+    cover = Column(String)
     author_id = Column(Integer)
 

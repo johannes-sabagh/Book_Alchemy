@@ -8,11 +8,13 @@
   </head>
   <body>
 <h1>Add Book Page</h1><br>
+<a href="/add_author">Add author</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="/">Show all books</a><br>
   <form action="/add_book" method="POST">
   <label for="authors">Authors</label>
     <select name="authors" id="authors">
     {% for author in authors %}
-    <option value="{{author.id}}">{{author.id}}: {{author.name}}</option>
+    <option value="{{author.id}}">{{author.name}}</option>
     {% endfor %}
   </select><br>
 
@@ -23,11 +25,13 @@
     <input type="text" name="title" id="title" required><br>
     <label for="publication_year">Publication year</label>
     <input type="text" name="publication_year" id="publication_year" required><br>
+    <label for="cover">Cover</label>
+    <input type="text" name="cover" id="cover">
 
     <input type="submit" value="Add book">
   </form><br>
 
-<a href="/add_author">Add author</a>
+
   <div>
     {% if msg %}
     <h2>{{msg}}</h2> </div>

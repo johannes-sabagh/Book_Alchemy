@@ -10,15 +10,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data
 
 db.init_app(app)
 
-def fetch_books_and_authors():
-  books = db.session.query(Book, Author) \
-    .join(Author, Book.author_id == Author.id) \
-    .all()
-  return books
 
 @app.route('/')
 def home():
-  books = fetch_books_and_authors()
+  books = db.session.query(Book, Author) \
+    .join(Author, Book.author_id == Author.id) \
+    .all()
   return render_template('home.html', books=books)
 
 
@@ -82,12 +79,14 @@ def add_book():
   add_title = request.form.get('title')
   add_publication_year = request.form.get('publication_year')
   add_author_id = request.form.get('authors')
+  add_cover = request.form.get('cover')
 
   book = Book(
     isbn = add_isbn,
     title = add_title,
     publication_year = add_publication_year,
-    author_id = add_author_id
+    author_id = add_author_id,
+    cover = add_cover
   )
   db.session.add(book)
   db.session.commit()
@@ -135,5 +134,5 @@ if __name__ == "__main__":
 
 
 
-#with app.app_context():
-  #db.create_all()
+# with app.app_context():
+#   db.create_all()

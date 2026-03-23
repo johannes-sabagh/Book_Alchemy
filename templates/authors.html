@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="static/styles.css">
 </head>
+
+<body>
+<h1>Authors Homepage</h1><br>
+ <a href="/add_author">Add author</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="/">Show all books</a><br>
  {% for author in authors %}
-    <p>{{author.name}}</p>
+<p><b><em>{{author.name}}</em></b> was born on <b>{{author.birth_date}}</b> and died on <b>{{author.date_of_death}}</b></p>
     <form method="post" action="/authors/{{author.id}}/delete">
         <input value="Delete" type="submit">
     </form><br>
     {% endfor %}
   <br>
 
-  <a href="/authors">View authors</a>
-<body>
 
 </body>
 </html>
