@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Search results</title>
+    <link rel="stylesheet" href="static/styles.css">
 </head>
 <body>
 {% if msg %}
 {{msg}}
 {% endif %}
-books
-{% for book in books %}
-{{book.title}}
+<h2>{{books | length}} books found:</h2><br>
+{% for book, author in books %}
+<p>Book title: <b>{{book.title}}</b><br> written by: <b>{{author.name}}</b></p><br>
 {% endfor %}
 </body>
 </html>

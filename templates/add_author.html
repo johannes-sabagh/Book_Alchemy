@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="static/styles.css">
   </head>
   <body>
-
+<h1>Add Author Page</h1><br>
   <form action="/add_author" method="POST">
   <label for="name">Author Name:</label> 
   <input type="text" id="name" name="name" required><br><br>
@@ -19,7 +20,8 @@
   </form>
 <div>
   {% if msg %}
-  <br>{{msg}}<br>
+  <br><h2>{{msg}}</h2><br>
+  <a href="/">Show all books</a><br>
   {% endif %}
 </div>
   </body>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+ {% for author in authors %}
+    <p>{{author.name}}</p>
+    <form method="post" action="/authors/{{author.id}}/delete">
+        <input value="Delete" type="submit">
+    </form><br>
+    {% endfor %}
+  <br>
+
+  <a href="/authors">View authors</a>
+<body>
+
+</body>
+</html>

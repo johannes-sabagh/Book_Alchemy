@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="static/styles.css">
   </head>
   <body>
-
+<h1>Add Book Page</h1><br>
   <form action="/add_book" method="POST">
   <label for="authors">Authors</label>
     <select name="authors" id="authors">
@@ -26,9 +27,11 @@
     <input type="submit" value="Add book">
   </form><br>
 
+<a href="/add_author">Add author</a>
   <div>
     {% if msg %}
-    {{msg}} </div>
+    <h2>{{msg}}</h2> </div>
+<a href="/">Show all books</a><br>
     {% endif %}
   </body>
 </html>

@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <link rel="stylesheet" href="static/styles.css">
   </head>
   <body>
+  <h1>Book library Homepage</h1><br>
 <form action="/search" name="search" method="post" >
   <label for="search">Search</label>
   <input type="text" name="search" id="search">
@@ -14,6 +16,11 @@
 <form action="/sort_by_title" name="by_title" method="post">
     <input value="sort by title" type="submit">
 </form>
+
+<form action="/sort_by_author" name="by_author" method="post">
+    <input value="sort by author" type="submit">
+</form>
+
     {% for book, author in books %}
     <p>{{ book.title }} by {{ author.name }}</p>
     <form method="post" action="/book/{{book.id}}/delete">
@@ -21,6 +28,7 @@
     </form><br>
     {% endfor %}
   <br>
-
+<a href="/add_book">Add book</a><br>
+  <a href="/authors">View authors</a>
   </body>
 </html>

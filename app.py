@@ -23,7 +23,7 @@ def home():
 
 
 @app.route('/sort_by_title', methods=['post'])
-def sort():
+def sort_title():
   books = db.session.query(Book, Author) \
     .join(Author, Book.author_id == Author.id) \
     .order_by(Book.title) \
@@ -31,12 +31,22 @@ def sort():
   return render_template('home.html', books=books)
 
 
+
+@app.route('/sort_by_author', methods=['post'])
+def sort_author():
+  books = db.session.query(Book, Author) \
+    .join(Author, Book.author_id == Author.id) \
+    .order_by(Author.name) \
+    .all()
+  return render_template('home.html', books=books)
+
+
 @app.route('/search', methods=['POST'])
 def search():
   to_find = request.form.get('search')
-  books = db.session.query(Book) \
-    .filter(Book.title.contains(to_find)) \
+  books = db.session.query(Book, Author) \
     .join(Author, Book.author_id == Author.id) \
+    .filter(Book.title.contains(to_find)) \
     .all()
   if not books:
     return render_template("search.html", msg="no books found")
@@ -94,6 +104,23 @@ def delete_book(book_id):
   db.session.commit()
   return redirect(url_for('home'))
 
+
+
+@app.route('/authors')
+def view_authors():
+  authors = db.session.query(Author) \
+    .all()
+  return render_template('authors.html', authors=authors)
+
+
+
+@app.route('/authors/<int:author_id>/delete', methods=['post'])
+def delete_author(author_id):
+  db.session.query(Author) \
+    .filter(Author.id == author_id) \
+    .delete()
+  db.session.commit()
+  return redirect(url_for('view_authors'))
 
 
 
